@@ -1,33 +1,22 @@
 {% extends 'layout.html' %}
 {% block body%}
-<nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="/">OAuth in Action: <span class="label label-primary">OAuth Client</span></a>
-    </div>
-  </div>
-</nav>
 
-<div class="container">
+<div class="jumbotron">
 
-  <div class="jumbotron">
+  <div class="alert alert-info" role="alert">This is the shell for the <strong>OAuth Client</strong>. This provides
+    no actual functionality.</div>
 
-    <div class="alert alert-info" role="alert">This is the shell for the <strong>OAuth Client</strong>. This provides
-      no actual functionality.</div>
-
-    <p>Access token value: <span class="label label-danger">
-        {% if access_token %} {{ access_token }}{% else %} NONE {% endif %}
-      </span></p>
-    <p>Scope value: <span class="label label-danger">
-        {% if scope %} {{ scope }} {% else %} NONE {% endif %}
-      </span></p>
-    <p>Refresh token value: <span class="label label-danger">
-        {% if refresh_token %} {{ refresh_token }} {% else %} NONE {% endif %}
-      </span></p>
-    <button class="btn btn-default" href="/authorize" disabled>Get OAuth Token</button>
-    <button class="btn btn-default" href="/fetch_resource" disabled>Get Protected Resource</button>
-  </div>
-
-</div><!-- /.container -->
+  <p>Access token value: <span class="label label-danger">
+      {% if access_token %} {{ access_token }}{% else %} NONE {% endif %}
+    </span></p>
+  <p>Scope value: <span class="label label-danger">
+      {% if scope %} {{ scope }} {% else %} NONE {% endif %}
+    </span></p>
+  <p>Refresh token value: <span class="label label-danger">
+      {% if refresh_token %} {{ refresh_token }} {% else %} NONE {% endif %}
+    </span></p>
+  <button class="btn btn-default" href="/authorize" disabled>Get OAuth Token</button>
+  <button class="btn btn-default" href="/fetch_resource" disabled>Get Protected Resource</button>
+</div>
 
 {% endblock %}

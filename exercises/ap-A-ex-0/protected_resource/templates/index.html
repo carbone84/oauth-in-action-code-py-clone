@@ -1,25 +1,12 @@
 {% extends 'layout.html' %}
 {% block body%}
 
-<nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="/">OAuth in Action: <span class="label label-success">OAuth Protected
-          Resource</span></a>
-    </div>
-  </div>
-</nav>
+<div class="jumbotron">
+  <div class="alert alert-success" role="alert">This is the shell for the <strong>OAuth Protected Resource</strong>.
+    This provides no actual functionality.</div>
 
-<div class="container">
-
-  <div class="jumbotron">
-    <div class="alert alert-success" role="alert">This is the shell for the <strong>OAuth Protected Resource</strong>.
-      This provides no actual functionality.</div>
-
-    To access the resource, send a <code>POST</code> request to <code>http://localhost:5002/resource</code> and
-    include a valid OAuth token.
-  </div>
-
-</div><!-- /.container -->
+  To access the resource, send a <code>POST</code> request to <code>http://localhost:5002/resource</code> and
+  include a valid OAuth token.
+</div>
 
 {% endblock %}
