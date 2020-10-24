@@ -1,9 +1,10 @@
 from flask import Flask
 from flask import render_template, redirect, request, session
-import secrets, urllib.parse, base64 #, requests
+import secrets, urllib.parse, base64, requests
 
 app = Flask(__name__)
 
+# need a secret key for session variables
 app.secret_key = secrets.token_urlsafe(16)
 
 # authorization server information
@@ -36,6 +37,13 @@ def authorize():
   #
   return render_template('')
 
+@app.route('/callback')
+def callback():
+  #
+  # Parse the response from the authorization server and get a token
+  #
+  return render_template('')
+  
 @app.route('/fetch_resource')
 def fetch_resource():
   #
