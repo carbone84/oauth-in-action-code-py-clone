@@ -65,10 +65,9 @@ def approve():
         if query['response_type'] == 'code':
             code = secrets.token_urlsafe(8)
             user = request.form.get('user') #req.body.user?
-            #var scope = __.filter(__.keys(req.body), function(s) { return __.string.startsWith(s, 'scope_'); })
-			#	.map(function(s) { return s.slice('scope_'.length); });
+
+            scope = set({r.replace("scope_", "") for r in dict(filter(lambda s: 'scope_' in s[0], request.form.items())).keys()})
             client = getClient(query['client_id'])
-            scope = set(client['scope'].split(' ')) if client['scope'] else set() # get scope from form body
             cscope = set(client['scope'].split(' ')) if client['scope'] else set()
             if len(scope.difference(cscope)) > 0:
                 redirect_url = client['redirect_uris'][0] + "?error=invalid_scope"
