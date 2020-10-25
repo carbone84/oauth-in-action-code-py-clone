@@ -35,15 +35,13 @@ def index():
 def authorize():
   session['access_token'] = ''
   session['state'] = secrets.token_urlsafe(32)
-  authorize_url = auth_server['authorization_endpoint'] + f"?response_type=code&client_id={client['client_id']}&redirect_uri={client['redirect_uris'][0]}&state={session['state']}"
-
-  #TODO: write buildUrl function
-  # authorize_url = buildUrl(auth_server.authorization_endpoint, {
-  #   'response_type': 'code',
-  #   'client_id': client.client_id,
-  #   'redirect_uri': client.redirect_uris[0],
-  #   'state': session['state']
-  # })
+    
+  authorize_url = buildUrl(auth_server['authorization_endpoint'], {
+    'response_type': 'code',
+    'client_id': client['client_id'],
+    'redirect_uri': client['redirect_uris'][0],
+    'state': session['state']
+  })
 
   return redirect(authorize_url)
 
@@ -96,8 +94,11 @@ def fetch_resource():
     session['access_token'] = ''
     return render_template('error.html', error=resource.status_code)
 
-#TODO
-#def buildUrl():
+def buildUrl(base, options):
+  url = urllib.parse.urlsplit(base)
+  query_string = urllib.parse.urlencode(options)
+  new_url = urllib.parse.urlunsplit((url.scheme, url.netloc, url.path, query_string, ""))
+  return new_url
 
 def encodeClientCredentials(client_id, client_secret):
   credentials = urllib.parse.quote(client_id, safe='') + ':' + urllib.parse.quote(client_secret, safe='')

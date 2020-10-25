@@ -51,8 +51,11 @@ def fetch_resource():
   #
   return render_template('')
 
-#TODO
-#def buildUrl():
+def buildUrl(base, options, hash=''):
+  url = urllib.parse.urlsplit(base)
+  query_string = urllib.parse.urlencode(options)
+  new_url = urllib.parse.urlunsplit((url.scheme, url.netloc, url.path, query_string, ""))
+  return new_url
 
 def encodeClientCredentials(client_id, client_secret):
   credentials = urllib.parse.quote(client_id, safe='') + ':' + urllib.parse.quote(client_secret, safe='')
