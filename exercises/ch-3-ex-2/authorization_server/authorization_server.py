@@ -70,6 +70,9 @@ def approve():
             client = getClient(query['client_id'])
             cscope = set(client['scope'].split(' ')) if client['scope'] else set()
             if len(scope.difference(cscope)) > 0:
+                print(f"scope: {scope}")
+                print(f"cscope: {cscope}")
+
                 redirect_url = query['redirect_uri'] + "?error=invalid_scope"
                 return redirect(redirect_url)
             
@@ -149,6 +152,8 @@ def token():
         else:
             print(f"Unknown code, {request.args.get('code')}")
             return "invalid_grant", 400
+    #elif request.args.get('grant_type') == 'refresh_token':
+        #call db to check for refresh token
     else:
         print(f"Unknown grant type, {request.args.get('grant_type')}")
         return "unsupported_grant_type", 400
@@ -160,3 +165,6 @@ def getClient(client_id):
     return "Client not found"
 
 db.truncate()
+
+# inject our pre-baked refresh token
+# setTimeout(() => nosql.insert({ refresh_token: 'j2r3oj32r23rmasd98uhjrk2o3i', client_id: 'oauth-client-1', scope: 'foo bar' }), 5000);
