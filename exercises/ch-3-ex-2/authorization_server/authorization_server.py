@@ -130,7 +130,7 @@ def token():
                     cscope = " ".join(code['scope'])
                 
                 #insert to db
-                token_id = db.insert({
+                db.insert({
                     'access_token': access_token,
                     'client_id': client_id,
                     'scope': cscope
@@ -152,8 +152,32 @@ def token():
         else:
             print(f"Unknown code, {request.args.get('code')}")
             return "invalid_grant", 400
-    #elif request.args.get('grant_type') == 'refresh_token':
+    elif request.form.get('grant_type') == 'refresh_token':
         #call db to check for refresh token
+        sql = Query()
+        tokens = db.search(sql.refresh_token == request.form.get('refresh_token'))
+        if len(tokens) == 1:
+            token = tokens[0]
+            if token['client_id'] != client_id:
+                print(f"Invalid client using a refresh token, expected {token['client_id']} got {client_id}")
+                db.remove(sql.refresh_token == request.form.get('refresh_token'))
+                return 400
+            print(f"We found a matching refresh token: {request.form.get('refresh_token')}")
+            access_token = secrets.token_urlsafe(32)
+            token_response = {
+                    'access_token': access_token,
+                    'token_type': 'Bearer',
+                    'refresh_token': request.form.get('refresh_token')
+                }
+            db.insert({
+                    'access_token': access_token,
+                    'client_id': client_id
+                })
+            print(f"Issuing access token {access_token} for refresh token {request.form.get('refresh_token')}")
+            return token_response, 200
+        else:
+            print("No matching token was found.")
+            return 401
     else:
         print(f"Unknown grant type, {request.args.get('grant_type')}")
         return "unsupported_grant_type", 400
@@ -166,5 +190,14 @@ def getClient(client_id):
 
 db.truncate()
 
+db.insert({
+    'refresh_token': 'j2r3oj32r23rmasd98uhjrk2o3i',
+    'client_id': 'oauth-client-1',
+    'scope': 'foo bar'
+})
 # inject our pre-baked refresh token
-# setTimeout(() => nosql.insert({ refresh_token: 'j2r3oj32r23rmasd98uhjrk2o3i', client_id: 'oauth-client-1', scope: 'foo bar' }), 5000);
+# setTimeout(() => nosql.insert({ 
+#   refresh_token: 'j2r3oj32r23rmasd98uhjrk2o3i', 
+#   client_id: 'oauth-client-1', 
+#   scope: 'foo bar' 
+# }), 5000);
