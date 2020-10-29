@@ -17,7 +17,9 @@ def index():
 
 @app.route('/resource', methods=['POST'])
 def resource():
-    if getAccessToken():
+    access_token = ''
+    getAccessToken()
+    if access_token:
         return protected_resource
     else:
         return "Error", 401
@@ -33,6 +35,12 @@ def getAccessToken():
         in_token = request.args.get('access_token')
     
     print(f"Incoming token: {in_token}")
-    query = Query()
-    token = db.search(query.access_token == in_token)
-    return token
+    sql = Query()
+    tokens = db.search(sql.access_token == in_token)
+    if len(tokens) == 1:
+        token = tokens[0]
+        print(f"We found a matching token: {token}")
+        access_token == token
+    else:
+        print("No matching token was found.")
+    return
