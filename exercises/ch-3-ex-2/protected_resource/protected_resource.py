@@ -18,7 +18,7 @@ def index():
 @app.route('/resource', methods=['POST'])
 def resource():
     access_token = ''
-    getAccessToken()
+    access_token = getAccessToken()
     if access_token:
         return protected_resource
     else:
@@ -40,7 +40,7 @@ def getAccessToken():
     if len(tokens) == 1:
         token = tokens[0]
         print(f"We found a matching token: {token}")
-        access_token == token
+        return token
     else:
         print("No matching token was found.")
-    return
+        return

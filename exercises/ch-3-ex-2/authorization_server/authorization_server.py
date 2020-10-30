@@ -171,7 +171,7 @@ def token():
                 }
             db.insert({
                     'access_token': access_token,
-                    'client_id': client_id
+                    'client_id': token['client_id']
                 })
             print(f"Issuing access token {access_token} for refresh token {request.form.get('refresh_token')}")
             return token_response, 200
