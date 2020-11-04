@@ -94,8 +94,6 @@ def callback():
   
 @app.route('/fetch_resource')
 def fetch_resource():
-  if not session.get('access_token'):
-    return render_template('error.html', error="Missing Access Token")
 
   print(f"Making request with access token {session['access_token']}")
 
