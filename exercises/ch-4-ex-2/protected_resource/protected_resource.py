@@ -14,39 +14,53 @@ protected_resource = {
 
 saved_words = []
 
+access_token = ''
+
+@app.before_request
+def before_request():
+    access_token = getAccessToken()
+    if access_token:
+        print(f"Found access token {access_token}")
+    else:
+        print("No matching token was found.")
+        return "Error", 401
+
 @app.route('/', methods=['GET'])
 def index():
+    print(f"I got in with token {access_token}")
     return render_template('index.html')
 
 @app.route('/words', methods=['GET','POST','DELETE'])
 def words():
-    access_token = ''
-    access_token = getAccessToken()
+    #access_token = ''
+    #access_token = getAccessToken()
     
-    if access_token:
-        print(request.method)
-        if request.method == 'GET':
+    #if access_token:
+    print(request.method)
+    if request.method == 'GET':
             
             #
             # Make this function require the "read" scope
             #
-            return {'words': ' '.join(saved_words), 'timestamp': time()}
-        elif request.method == 'POST':
+        return {'words': ' '.join(saved_words), 'timestamp': time()}
+    elif request.method == 'POST':
             #
             # Make this function require the "write" scope
             #
-            if request.form.get('word'):
-                saved_words.append(request.form.get('word'))
-                print(saved_words)
-            return "added", 201
-        elif request.method == 'DELETE':
+        if request.form.get('word'):
+            saved_words.append(request.form.get('word'))
+            print(saved_words)
+        return "added", 201
+    elif request.method == 'DELETE':
             #
             # Make this function require the "delete" scope
             #
-            saved_words.pop()
-            return "popped", 204
+        saved_words.pop()
+        return "popped", 204
     else:
-        return "Error", 401
+        return
+    #else:
+        #return "Error", 401
 
 
 def getAccessToken():
