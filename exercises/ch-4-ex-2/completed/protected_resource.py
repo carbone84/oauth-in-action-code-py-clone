@@ -1,6 +1,7 @@
 from flask import Flask
-from flask import render_template, request
+from flask import render_template, request, g
 from tinydb import TinyDB, Query
+from time import time
 
 app = Flask(__name__)
 
@@ -11,18 +12,44 @@ protected_resource = {
     'description': 'This data has been protected by OAuth 2.0'
 }
 
+saved_words = []
+
+@app.before_request
+def before_request():
+    g.access_token = getAccessToken()
+    if g.access_token:
+        print(f"Found access token {g.access_token}")
+    else:
+        print("No matching token was found.")
+        return "Error", 401
+
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
-@app.route('/resource', methods=['POST'])
-def resource():
-    access_token = ''
-    access_token = getAccessToken()
-    if access_token:
-        return protected_resource
+@app.route('/words', methods=['GET','POST','DELETE'])
+def words():
+    if request.method == 'GET':
+        if 'read' in g.access_token['scope']:
+            return {'words': ' '.join(saved_words), 'timestamp': time()}
+        else:
+            return ("Insufficient scope", 403, {'WWW-Authenticate': 'Bearer realm=localhost:5002, error="insufficient_scope", scope="read"'})
+    elif request.method == 'POST':
+        if 'write' in g.access_token['scope']:
+            if request.form.get('word'):
+                saved_words.append(request.form.get('word'))
+            return "added", 201
+        else:
+            return ("Insufficient scope", 403, {'WWW-Authenticate': 'Bearer realm=localhost:5002, error="insufficient_scope", scope="write"'})
+    elif request.method == 'DELETE':
+        if 'delete' in g.access_token['scope']:
+            if len(saved_words) > 0:
+                saved_words.pop()
+            return "popped", 204
+        else:
+            return ("Insufficient scope", 403, {'WWW-Authenticate': 'Bearer realm=localhost:5002, error="insufficient_scope", scope="delete"'})
     else:
-        return "Error", 401
+        return
 
 def getAccessToken():
     auth = request.headers['authorization']
@@ -38,7 +65,7 @@ def getAccessToken():
     sql = Query()
     tokens = db.search(sql.access_token == in_token)
     if len(tokens) == 1:
-        token = tokens[0]
+        token = dict(tokens[0])
         print(f"We found a matching token: {token}")
         return token
     else:

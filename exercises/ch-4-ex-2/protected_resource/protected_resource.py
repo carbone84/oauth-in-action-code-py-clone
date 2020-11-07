@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template, request
+from flask import render_template, request, g
 from tinydb import TinyDB, Query
 from time import time
 
@@ -14,31 +14,23 @@ protected_resource = {
 
 saved_words = []
 
-access_token = ''
 
 @app.before_request
 def before_request():
-    access_token = getAccessToken()
-    if access_token:
-        print(f"Found access token {access_token}")
+    g.access_token = getAccessToken()
+    if g.access_token:
+        print(f"Found access token {g.access_token}")
     else:
         print("No matching token was found.")
         return "Error", 401
 
 @app.route('/', methods=['GET'])
 def index():
-    print(f"I got in with token {access_token}")
     return render_template('index.html')
 
 @app.route('/words', methods=['GET','POST','DELETE'])
 def words():
-    #access_token = ''
-    #access_token = getAccessToken()
-    
-    #if access_token:
-    print(request.method)
-    if request.method == 'GET':
-            
+    if request.method == 'GET':   
             #
             # Make this function require the "read" scope
             #
@@ -49,7 +41,6 @@ def words():
             #
         if request.form.get('word'):
             saved_words.append(request.form.get('word'))
-            print(saved_words)
         return "added", 201
     elif request.method == 'DELETE':
             #
@@ -59,8 +50,6 @@ def words():
         return "popped", 204
     else:
         return
-    #else:
-        #return "Error", 401
 
 
 def getAccessToken():
@@ -77,7 +66,7 @@ def getAccessToken():
     sql = Query()
     tokens = db.search(sql.access_token == in_token)
     if len(tokens) == 1:
-        token = tokens[0]
+        token = dict(tokens[0])
         print(f"We found a matching token: {token}")
         return token
     else:
