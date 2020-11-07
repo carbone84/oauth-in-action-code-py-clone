@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+{% block body%}
+
+
+<div class="jumbotron">
+
+    <h2>Produce API</h2>
+
+    <p>Current scope:<span class="label label-info">{{scope}}</span></p>
+
+    <p>Fruits:</p>
+    <ul>
+        {% for fruit in data.fruit %}
+        <li>{{fruit}}</li>
+        {% endfor %}
+    </ul>
+    <p>Veggies:</p>
+    <ul>
+        {% for veggie in data.veggies %}
+        <li>{{veggie}}</li>
+        {% endfor %}
+    </ul>
+    <p>Meats:</p>
+    <ul>
+        {% for meat in data.meats %}
+        <li>{{meat}}</li>
+        {% endfor %}
+    </ul>
+
+    <a href="/produce" class="btn btn-default">Get Produce</a>
+
+</div>
+
+{% endblock %}
