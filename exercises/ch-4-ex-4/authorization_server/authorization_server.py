@@ -92,6 +92,7 @@ def approve():
         if query['response_type'] == 'code':
             code = secrets.token_urlsafe(8)
             user = request.form.get('user')
+            print(f"User: {user}")
             
             scope = set({r.replace("scope_", "") for r in dict(filter(lambda s: 'scope_' in s[0], request.form.items())).keys()})
             client = getClient(query['client_id'])
@@ -172,13 +173,13 @@ def token():
         if code:
             del codes[request.form.get('code')]
             if code['authorization_endpoint_request']['client_id'] == client_id:
-                #user = user_info[code['user']]
+                user = user_info[code['user']]
                 if code['scope']:
                     scope = code['scope']
                 else:
                     scope = ''
                 #token_response = generateTokens(client_id, user, code['scope'], code['authorization_endpoint_request']['nonce'], True)
-                token_response = generateTokens(client_id, '', scope, '', True)
+                token_response = generateTokens(client_id, user, scope, '', True)
 
                 print(f"Issued tokens for code {request.form.get('code')}")
                 return token_response, 200
@@ -279,7 +280,7 @@ def generateTokens(client_id, user, scope, nonce, generateRefreshToken):
         'access_token': access_token,
         'client_id': client_id,
         'scope': ' '.join(scope),
-        'user': user
+        'user': user['preferred_username']
     })
     
     if refresh_token:
@@ -287,7 +288,7 @@ def generateTokens(client_id, user, scope, nonce, generateRefreshToken):
             'refresh_token': refresh_token,
             'client_id': client_id,
             'scope': ' '.join(scope),
-            'user': user
+            'user': user['preferred_username']
         })
 
     print(f"Issuing access token {access_token}")

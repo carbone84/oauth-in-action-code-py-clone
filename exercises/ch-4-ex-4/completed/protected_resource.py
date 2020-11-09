@@ -12,7 +12,17 @@ protected_resource = {
     'description': 'This data has been protected by OAuth 2.0'
 }
 
-saved_words = []
+aliceFavorites = {
+	'movies': ['The Multidmensional Vector', 'Space Fights', 'Jewelry Boss'],
+	'foods': ['bacon', 'pizza', 'bacon pizza'],
+	'music': ['techno', 'industrial', 'alternative']
+};
+
+bobFavorites = {
+	'movies': ['An Unrequited Love', 'Several Shades of Turquoise', 'Think Of The Children'],
+	'foods': ['bacon', 'kale', 'gravel'],
+	'music': ['baroque', 'ukulele', 'baroque ukulele']
+};
 
 
 @app.before_request
@@ -27,21 +37,15 @@ def before_request():
 def index():
     return render_template('index.html')
 
-@app.route('/produce')
-def produce():
-    produce = {
-        'fruit': [],
-        'veggies': [],
-        'meats': []
-    }
-    if 'fruit' in g.access_token['scope']:
-        produce['fruit'] = ['apple', 'banana', 'kiwi']
-    if 'veggies' in g.access_token['scope']:
-        produce['veggies'] = ['lettuce', 'onion', 'potato']
-    if 'meats' in g.access_token['scope']:
-        produce['meats'] = ['bacon', 'steak', 'chicken breast']
-    print(f"Sending produce: {produce}")
-    return produce
+@app.route('/favorites')
+def favorites():
+    if g.access_token['user'] == 'alice':
+        return {'user': 'Alice', 'favorites': aliceFavorites}
+    elif g.access_token['user'] == 'bob':
+        return {'user': 'Bob', 'favorites': bobFavorites}
+    else:
+        unknown = {'user': 'Unknown', 'favorites': {'movies': [], 'foods': [], 'music': []}}
+    return unknown
 
 
 def getAccessToken():
