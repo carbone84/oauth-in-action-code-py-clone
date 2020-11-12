@@ -32,7 +32,7 @@ def resource():
         return "Error", 401
 
 def getAccessToken():
-    auth = request.headers['authorization']
+    auth = request.headers.get('authorization')
     in_token = ''
     if auth and auth.lower().index('bearer') == 0:
         in_token = auth[7:len(auth)]

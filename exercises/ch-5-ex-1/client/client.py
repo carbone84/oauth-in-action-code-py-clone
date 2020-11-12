@@ -79,7 +79,7 @@ def callback():
     if body.get('refresh_token'):
       session['refresh_token'] = body['refresh_token']
       print(f"Got refresh token: {refresh_token}")
-    scope = body['scope']
+    scope = body.get('scope')
     print(f"Got scope: {scope}")
     return render_template('index.html', access_token=session['access_token'], scope=scope, refresh_token=session['refresh_token'])
   else:
