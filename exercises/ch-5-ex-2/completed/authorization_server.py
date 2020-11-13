@@ -44,7 +44,6 @@ def authorize():
         requests[request_id] = request.args
         return render_template('approve.html', client=client, request_id=request_id)
     
-
 @app.route('/approve', methods=['GET', 'POST'])
 def approve():
     request_id = request.form.get('request_id')
@@ -82,13 +81,13 @@ def token():
         client_id = client_credentials[0]
         client_secret = client_credentials[1]
 
-    if request.form.get('client_id', ''):
+    if request.form.get('client_id'):
         if client_id:
             print("Client attempted to authenticate with multiple methods")
             return "invalid_client", 401
         
-        client_id = request.args.get['client_id']
-        client_secret = request.args.get['client_secret']
+        client_id = request.form.get('client_id')
+        client_secret = request.form.get('client_secret')
 
     client = getClient(client_id)
 
@@ -104,20 +103,24 @@ def token():
             del codes[request.form.get('code')]
             if code['request']['client_id'] == client_id:
                 access_token = secrets.token_urlsafe(32)
-                
+                refresh_token = secrets.token_urlsafe(32)
+
                 #insert to db
                 db.insert({
                     'access_token': access_token,
                     'client_id': client_id
                 })
-                #
-                # Issue a refresh token along side the access token and save it to the database
-                #
+                db.insert({
+                    'refresh_token': refresh_token,
+                    'client_id': client_id
+                })
+
                 print(f"Issuing access token {access_token}")
                 #print(f"with scope {code['scope']}")
                 token_response = {
                     'access_token': access_token,
-                    'token_type': 'Bearer'
+                    'token_type': 'Bearer',
+                    'refresh_token': refresh_token
                 }
 
                 print(f"Issued tokens for code {request.form.get('code')}")
@@ -128,9 +131,32 @@ def token():
         else:
             print(f"Unknown code, {request.args.get('code')}")
             return "invalid_grant", 400
-    #
-    # Respond to a refresh token request by issuing a new access token
-    #
+    elif request.form.get('grant_type') == 'refresh_token':
+        #call db to check for refresh token
+        sql = Query()
+        tokens = db.search(sql.refresh_token == request.form.get('refresh_token'))
+        if len(tokens) == 1:
+            token = tokens[0]
+            if token['client_id'] != client_id:
+                print(f"Invalid client using a refresh token, expected {token['client_id']} got {client_id}")
+                db.remove(sql.refresh_token == request.form.get('refresh_token'))
+                return 400
+            print(f"We found a matching refresh token: {request.form.get('refresh_token')}")
+            access_token = secrets.token_urlsafe(32)
+            token_response = {
+                    'access_token': access_token,
+                    'token_type': 'Bearer',
+                    'refresh_token': token['refresh_token']
+                }
+            db.insert({
+                    'access_token': access_token,
+                    'client_id': token['client_id']
+                })
+            print(f"Issuing access token {access_token} for refresh token {request.form.get('refresh_token')}")
+            return token_response, 200
+        else:
+            print("No matching token was found.")
+            return 'invalid_grant', 400
     else:
         print(f"Unknown grant type, {request.args.get('grant_type')}")
         return "unsupported_grant_type", 400

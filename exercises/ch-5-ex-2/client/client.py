@@ -87,10 +87,10 @@ def callback():
     print(f"Got access token: {session['access_token']}")
     if body.get('refresh_token'):
       session['refresh_token'] = body['refresh_token']
-      print(f"Got refresh token: {refresh_token}")
-    scope = body.get('scope')
-    print(f"Got scope: {scope}")
-    return render_template('index.html', access_token=session['access_token'], scope=scope, refresh_token=session['refresh_token'])
+      print(f"Got refresh token: {session['refresh_token']}")
+    session['scope'] = body.get('scope')
+    print(f"Got scope: {session['scope']}")
+    return render_template('index.html', access_token=session['access_token'], scope=session['scope'], refresh_token=session['refresh_token'])
   else:
     return render_template('error.html', error=f"Unable to fetch access token, server response: {token_response.status_code}")
   
@@ -103,6 +103,7 @@ def refresh():
     'client_secret': client['client_secret'],
     'redirect_uri': client['redirect_uris'][0]
   }
+  print(f"form_data: {form_data}")
   headers = {'Content-Type': 'application/x-www-form-urlencoded'}
   print(f"Refreshing token {session['refresh_token']}")
 
@@ -114,7 +115,7 @@ def refresh():
     if body.get('refresh_token'):
       session['refresh_token'] = body['refresh_token']
       print(f"Got refresh token: {session['refresh_token']}")
-    session['scope'] = body['scope']
+    session['scope'] = body.get('scope')
     print(f"Got scope: {session['scope']}")
     return render_template('index.html', access_token=session['access_token'], refresh_token=session['refresh_token'], scope=session['scope'])
   else:
