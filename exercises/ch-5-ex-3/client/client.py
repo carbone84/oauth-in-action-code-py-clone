@@ -53,7 +53,8 @@ def authorize():
     'response_type': 'code',
     'client_id': client['client_id'],
     'redirect_uri': client['redirect_uris'][0],
-    'state': session['state']
+    'state': session['state'],
+    'scope': client['scope']
   })
   print(f"redirect: {authorize_url}")
   return redirect(authorize_url)
