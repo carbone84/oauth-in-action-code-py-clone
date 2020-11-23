@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+{% block body%}
+
+
+<div class="jumbotron">
+  <p>Scope value: <span class="label label-danger oauth-scope-value">
+      {% if scope %} {{ scope }} {% else %} NONE {% endif %}
+    </span></p>
+  <p>Access token value: <span class="label label-danger oauth-access-token">
+      {% if access_token %} {{ access_token }} {% else %} NONE {% endif %}
+    </span></p>
+  <a class="btn btn-default oauth-authorize">Get OAuth Token</a>
+  <a class="btn btn-default oauth-fetch-resource">Get Protected Resource</a>
+</div>
+<div class="jumbotron">
+  <h2>Data from protected resource:</h2>
+  <pre><span class="oauth-protected-resource"></span></pre>
+</div>
+{% endblock %}
