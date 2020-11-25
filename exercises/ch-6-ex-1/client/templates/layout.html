@@ -90,7 +90,7 @@
 
             function handleFetchResourceClick(ev) {
                 if (callbackData != null) {
-
+                    console.log('callbackData.access_token: %s', callbackData.access_token)
                     $.ajax({
                         url: protectedResource,
                         type: 'POST',
