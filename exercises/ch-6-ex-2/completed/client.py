@@ -33,11 +33,23 @@ def authorize():
   session['access_token'] = ''
   session['scope'] = ''
   
-  #
-  # Implement the client credentials flow here
-  #
+  form_data = {
+    'grant_type': 'client_credentials',
+    'scope': client['scope']
+  }
+  headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Authorization': f"Basic {encodeClientCredentials(client['client_id'], client['client_secret'])}"
+  }
+  token_response = requests.post(auth_server['token_endpoint'], data=form_data, headers=headers)
 
-  return render_template('index.html', access_token=session['access_token'], scope=session['scope'])
+  if token_response.status_code >= 200 and token_response.status_code < 300:
+    body = token_response.json()
+    session['access_token'] = body['access_token']
+    session['scope'] = body['scope']
+    return render_template('index.html', access_token=session['access_token'], scope=session['scope'])
+  else:
+    return render_template('error.html', error=f"Unable to fetch access token, server response: {token_response.status_code}")
 
 @app.route('/fetch_resource')
 def fetch_resource():

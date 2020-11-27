@@ -25,11 +25,11 @@ clients = [
     }
 ]
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
     return render_template('index.html', clients=clients, auth_server=auth_server)
 
-@app.route('/authorize')
+@app.route('/authorize', methods=['GET'])
 def authorize():
     client = getClient(request.args.get('client_id', ''))
     
@@ -147,20 +147,9 @@ def token():
         else:
             print(f"Unknown code, {request.args.get('code')}")
             return "invalid_grant", 400
-    elif request.form.get('grant_type') == 'client_credentials':
-        rscope = set({r.replace("scope_", "") for r in dict(filter(lambda s: 'scope_' in s[0], request.form.items())).keys()})
-        cscope = set(client['scope'].split(' ')) if client['scope'] else set()
-        if len(rscope.difference(cscope)) > 0:
-            redirect_url = query['redirect_uri'] + "?error=invalid_scope"
-            return redirect(redirect_url)
-        access_token = secrets.token_urlsafe(32)
-        token_response = {'access_token': access_token, 'token_type': 'Bearer', 'scope': ' '.join(rscope)}
-        db.insert({
-                    'access_token': access_token,
-                    'client_id': client_id,
-                    'scope': ' '.join(rscope)
-                })
-        return token_response, 200
+    #
+    # Implement the client credentials grant type
+    #
     elif request.form.get('grant_type') == 'refresh_token':
         #call db to check for refresh token
         sql = Query()
