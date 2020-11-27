@@ -1,0 +1,86 @@
+from flask import Flask
+from flask import render_template, redirect, request, session, url_for
+import secrets, urllib.parse, base64, requests
+
+app = Flask(__name__)
+
+# need a secret key for session variables
+app.secret_key = secrets.token_urlsafe(16)
+
+# authorization server information
+auth_server = {
+  'authorization_endpoint': 'http://localhost:5001/authorize',
+  'token_endpoint': 'http://localhost:5001/token',
+}
+
+# client information
+client = {
+  'client_id': 'oauth-client-1',
+  'client_secret': 'oauth-client-secret-1',
+  'scope': 'foo bar'
+}
+
+protected_resource = 'http://localhost:5002/resource'
+
+@app.route('/')
+def index():
+  session['access_token'] = ''
+  session['refresh_token'] = ''
+  session['scope'] = ''
+  return render_template('index.html', access_token=session['access_token'], refresh_token=session['refresh_token'], scope=session['scope'])
+
+@app.route('/authorize')
+def authorize():
+  return render_template('username_password.html')
+
+@app.route('/username_password', methods=['POST'])
+def username_password():
+  username = request.form.get('username')
+  password = request.form.get('password')
+
+  form_data = {
+    'grant_type': 'password',
+    'username': username,
+    'password': password,
+    'scope': client['scope']
+  }
+  headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Authorization': f"Basic {encodeClientCredentials(client['client_id'], client['client_secret'])}"
+  }
+
+  token_response = requests.post(auth_server['token_endpoint'], data=form_data, headers=headers)
+  if token_response.status_code >= 200 and token_response.status_code < 300:
+    body = token_response.json()
+    session['access_token'] = body['access_token']
+    session['refresh_token'] = body['refresh_token']
+    session['scope'] = body['scope']
+    return render_template('index.html', access_token=session['access_token'], refresh_token=session['refresh_token'], scope=session['scope'])
+  else:
+    return render_template('error.html', error=f"Unable to fetch access token, server response: {token_response.status_code}")
+
+@app.route('/fetch_resource')
+def fetch_resource():
+  if not session.get('access_token'):
+    return render_template('error.html', error="Missing Access Token")
+
+  print(f"Making request with access token {session['access_token']}")
+
+  headers = {
+    'Authorization': f"Bearer {session['access_token']}",
+    'Content-Type': 'application/x-www-form-urlencoded'
+  }
+  resource = requests.post(protected_resource, headers=headers)
+
+  if resource.status_code >= 200 and resource.status_code < 300:
+    body = resource.json()
+    return render_template('data.html', resource=body)
+  else:
+    session['access_token'] = ''
+    return render_template('error.html', error=f"Server returned response code: {resource.status_code}")
+
+def encodeClientCredentials(client_id, client_secret):
+  credentials = urllib.parse.quote(client_id, safe='') + ':' + urllib.parse.quote(client_secret, safe='')
+  credentials_bytes = credentials.encode('ascii')
+  credentials_b64 = base64.b64encode(credentials_bytes)
+  return credentials_b64
