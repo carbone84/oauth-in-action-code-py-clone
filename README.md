@@ -3,7 +3,7 @@ This is a project to convert the exercise code from the OAuth In Action book by 
 The original repo can be found at https://github.com/oauthinaction/oauth-in-action-code.
 
 ### To use the code as written, you will need to create 3 virtual environments for each exercise, and then run flask in each virtual environment.
-To work the ch-3-ex-1 exercise, create a virtual environment in the authorization_server, client, and protected_resource directories.
+To work the ch-3-ex-1 exercise, create a virtual environment in the authorization_server, client, and protected_resource directories.  
 In the client directory, create the virtual environment and activate it:  
     `python3 -m venv client-env
     source client-env/bin/activate`  
