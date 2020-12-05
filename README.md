@@ -6,8 +6,8 @@ The original repo can be found at https://github.com/oauthinaction/oauth-in-acti
 To work the ch-3-ex-1 exercise, create a virtual environment in the authorization_server, client, and protected_resource directories.
 ##### In the client directory:
 Create the virtual environment and activate it:  
-    ```python3 -m venv client-env  
-    source client-env/bin/activate```  
+    `python3 -m venv client-env`  
+    `source client-env/bin/activate`  
 You will need to install flask, python-dotenv, and requests  
     `pip install flask python-dotenv requests`  
 Then you can run flask  
@@ -16,8 +16,8 @@ This will create the client at http://localhost:5000/
 
 ##### In the authorization_server directory:
 Create the virtual environment and activate it:  
-    `python3 -m venv authorization-env  
-    source authorization-env/bin/activate`  
+    `python3 -m venv authorization-env`  
+    `source authorization-env/bin/activate`  
 You will need to install flask, python-dotenv, and tinydb  
     `pip install flask python-dotenv tinydb`  
 Then you can run flask  
@@ -26,8 +26,8 @@ This will create the authorization server at http://localhost:5001/
 
 ##### In the protected_resource directory:
 Create the virtual environment and activate it:  
-    `python3 -m venv resource-env  
-    source resource-env/bin/activate`  
+    `python3 -m venv resource-env`  
+    `source resource-env/bin/activate`  
 You will need to install flask, python-dotenv, and tinydb  
     `pip install flask python-dotenv tinydb`  
 Then you can run flask  
