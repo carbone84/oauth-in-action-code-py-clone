@@ -8,17 +8,17 @@
     from browser import ajax, document, local_storage, window
     import random
 
-    callbackData = ''
+    callback_data = ''
     client = {
         'client_id': 'oauth-client-1',
         'redirect_uris': ['http://localhost:5000/callback'],
         'scope': 'foo bar'
     }
-    authServer = {
-        'authorizationEndpoint': 'http://localhost:5001/authorize'
+    auth_server = {
+        'authorization_endpoint': 'http://localhost:5001/authorize'
     }
-    protectedResource = 'http://localhost:5002/resource'
-    localStorage = local_storage.storage
+    protected_resource = 'http://localhost:5002/resource'
+    local_storage = local_storage.storage
 
     def generateState(len):
         ret = ''
@@ -31,8 +31,8 @@
     
     def handleAuthorizationRequestClick(e):
         state = generateState(32)
-        localStorage['oauth-state'] = state
-        window.location.href = f"{authServer['authorizationEndpoint']}"\
+        local_storage['oauth-state'] = state
+        window.location.href = f"{auth_server['authorization_endpoint']}"\
             "?response_type=token"\
             f"&state={state}"\
             f"&scope={client['scope']}"\
@@ -40,11 +40,11 @@
             f"&redirect_uri={client['redirect_uris'][0]}"
 
     def handleFetchResourceClick(e):
-        if callbackData:
-            print(f"callbackData['access_token']: {callbackData['access_token']}")
+        if callback_data:
+            print(f"callback_data['access_token']: {callback_data['access_token']}")
             request = ajax.ajax()
-            request.open('POST', protectedResource, True)
-            request.set_header('Authorization', f"Bearer {callbackData['access_token']}")
+            request.open('POST', protected_resource, True)
+            request.set_header('Authorization', f"Bearer {callback_data['access_token']}")
             request.bind('complete', on_complete)
             request.send()
     
@@ -57,25 +57,25 @@
     def processCallback():
         hash = window.location.hash[1:]
         whitelist = ['access_token', 'state', 'scope']
-        global callbackData
-        callbackData = {}
+        global callback_data
+        callback_data = {}
         split_hash = hash.split('&')
 
         for item in split_hash:
             p = item.split('=')
             if p[0] in whitelist:
-                callbackData[p[0]] = p[1]
+                callback_data[p[0]] = p[1]
 
-        if callbackData['state'] is not localStorage['oauth-state']:
-            print(f"State DOES NOT MATCH: expected {localStorage['oauth-state']} got {callbackData['state']}")
-            callbackData = ''
+        if callback_data['state'] is not local_storage['oauth-state']:
+            print(f"State DOES NOT MATCH: expected {local_storage['oauth-state']} got {callback_data['state']}")
+            callback_data = ''
             document.select('.oauth-protected-resource')[0].textContent = "Error state value did not match"
             document.select('.oauth-access-token')[0].textContent = 'NONE'
             document.select('.oauth-scope-value')[0].textContent = 'NONE'
         else:
-            document.select('.oauth-access-token')[0].textContent = callbackData['access_token']
-            document.select('.oauth-scope-value')[0].textContent = callbackData['scope'].replace('%20', ' ')
-            print(f"access_token: {callbackData['access_token']}")
+            document.select('.oauth-access-token')[0].textContent = callback_data['access_token']
+            document.select('.oauth-scope-value')[0].textContent = callback_data['scope'].replace('%20', ' ')
+            print(f"access_token: {callback_data['access_token']}")
 
     document.select('.oauth-authorize')[0].bind('click', handleAuthorizationRequestClick)
     document.select('.oauth-fetch-resource')[0].bind('click', handleFetchResourceClick)
