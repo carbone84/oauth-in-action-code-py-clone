@@ -148,12 +148,13 @@ def token():
             print(f"Unknown code, {request.args.get('code')}")
             return "invalid_grant", 400
     elif request.form.get('grant_type') == 'client_credentials':
-        rscope = set({r.replace("scope_", "") for r in dict(filter(lambda s: 'scope_' in s[0], request.form.items())).keys()})
+        rscope = set(request.form.get('scope').split(' ')) if request.form.get('scope') else set()
         cscope = set(client['scope'].split(' ')) if client['scope'] else set()
         if len(rscope.difference(cscope)) > 0:
             redirect_url = query['redirect_uri'] + "?error=invalid_scope"
             return redirect(redirect_url)
         access_token = secrets.token_urlsafe(32)
+        print(f"rscope: {rscope}")
         token_response = {'access_token': access_token, 'token_type': 'Bearer', 'scope': ' '.join(rscope)}
         db.insert({
                     'access_token': access_token,
